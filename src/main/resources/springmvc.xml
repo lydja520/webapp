@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:component-scan base-package="com.ydc.webframe.controller com.ydc.webapp.controller"/>
+
+    <mvc:annotation-driven/>
+
+    <!--请求映射处理适配器-->
+    <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
+        <property name="messageConverters">
+            <list>
+                <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+                    <property name="supportedMediaTypes" value="text/html;charset=UTF-8"></property>
+                </bean>
+                <!--json数据处理-->
+                <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                    <property name="supportedMediaTypes" value="apolication/json;charset=UTF-8"></property>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <!--视图解析器-->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/views/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+    <!-- 上传文件拦截，设置最大上传文件大小   50M=50*1024*1024(B)=52428800 bytes -->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="maxUploadSize" value="52428800"/>
+    </bean>
+
+    <!--静态资源配置-->
+    <mvc:default-servlet-handler/>
+
+    <!--拦截器配置-->
+    <mvc:interceptors>
+
+        <mvc:interceptor>
+            <mvc:mapping path="/api/**"/>
+            <bean class="com.ydc.webapp.interceptor.LoginInterceptor">
+                <property name="unCheckUriList">
+                    <list>
+                        <value>/api/securityCode/get</value>
+                    </list>
+                </property>
+            </bean>
+        </mvc:interceptor>
+
+    </mvc:interceptors>
+</beans>
